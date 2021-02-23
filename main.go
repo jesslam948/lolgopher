@@ -10,11 +10,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"math"
-	"strings"
-
-	"syreclabs.com/go/faker"
+	"os"
 )
 
 // this function generates the rgb rainbow
@@ -27,20 +27,30 @@ func rgb(i int) (int, int, int) {
 }
 
 func main() {
-	var phrases []string
+	// get stdin info
+	info, err := os.Stdin.Stat()
+	if err != nil {
+		fmt.Println("Error!")
+		return
+	}
+	// rune is an alias for type int32 and represents a code point
+	var output []rune
 
-	// this generates all of the text
-	for i := 1; i < 3; i++ {
-		// append is a variadic function (meaning the number of parameters can change)
-		// 	its method header prob looks like (s[]T, elems ...T)
-		// to directly pass a slice to a variadic function, use the ... notation
-		phrases = append(phrases, faker.Hacker().Phrases()...)
+	// checks that we piped something
+	if info.Mode()&os.ModeCharDevice != 0 {
+		fmt.Println("The command is intended to work with pipes.")
+		fmt.Println("Usage: fortune | lolgopher")
 	}
 
-	// join strings in slice into 1
-	output := strings.Join(phrases[:], "; ")
-
-	for j := 0; j < len(output); j++ {
+	reader := bufio.NewReader(os.Stdin)
+	j := 0
+	for {
+		input, _, err := reader.ReadRune()
+		if err != nil && err == io.EOF {
+			break
+		}
+		output = append(output, input)
+		// generate color
 		r, g, b := rgb(j)
 
 		// we print each character in rgb rainbow
@@ -52,5 +62,6 @@ func main() {
 		// m - sets the appearance of the following characters
 		// 0 - reset / set all attributes back to normal
 		fmt.Printf("\033[38;2;%d;%d;%dm%c\033[0m", r, g, b, output[j])
+		j++
 	}
 }
