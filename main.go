@@ -11,10 +11,20 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"syreclabs.com/go/faker"
 )
+
+// this function generates the rgb rainbow
+func rgb(i int) (int, int, int) {
+	var f = 0.1
+	ifloat := float64(i)
+	return int(math.Sin(f*ifloat+0)*127 + 128),
+		int(math.Sin(f*ifloat+2*math.Pi/3)*127 + 128),
+		int(math.Sin(f*ifloat+4*math.Pi/3)*127 + 128)
+}
 
 func main() {
 	var phrases []string
@@ -29,10 +39,11 @@ func main() {
 
 	// join strings in slice into 1
 	output := strings.Join(phrases[:], "; ")
-	r, g, b := 153, 255, 204 // mint green color
 
 	for j := 0; j < len(output); j++ {
-		// we print each character in mint green
+		r, g, b := rgb(j)
+
+		// we print each character in rgb rainbow
 		// \033 is the ASCII escape character
 		// begin ANSI Escape sequence
 		// [ - control sequence introducer
